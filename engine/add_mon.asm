@@ -40,13 +40,15 @@ _AddPartyMon:
 	ld hl, wPlayerName
 	ld bc, NAME_LENGTH
 	call CopyData
-	ld a, [wMonDataLocation]
-	and a
-	jr nz, .skipNaming
 	ld hl, wPartyMonNicks
 	ld a, [hNewPartyLength]
 	dec a
 	call SkipFixedLengthTextEntries
+	ld a, [wMonDataLocation]
+	cp $f0
+	jp z, .useRealName
+	and a
+	jr nz, .skipNaming
 	ld a, NAME_MON_SCREEN
 	ld [wNamingScreenType], a
 	predef AskName
@@ -75,8 +77,18 @@ _AddPartyMon:
 	push hl
 	ld a, [wMonDataLocation]
 	and $f
-	ld a, $98     ; set enemy trainer mon IVs to fixed average values
-	ld b, $88
+	push hl
+	push de
+	push bc
+	push af
+	callba GetTrainerMonDVs
+	pop af
+	pop bc
+	pop de
+	ld hl, wTempDVs
+	ld a, [hli]
+	ld b, [hl]
+	pop hl
 	jr nz, .next4
 
 ; If the mon is being added to the player's party, update the pokedex.
@@ -244,6 +256,16 @@ _AddPartyMon:
 .done
 	scf
 	ret
+.useRealName
+	ld a, [wcf91]
+	ld [wd11e], a
+	call GetMonName
+	ld d, h
+	ld e, l
+	ld hl, wcd6d
+	ld bc, NAME_LENGTH
+	call CopyData
+	jp .skipNaming
 
 LoadMovePPs:
 	call GetPredefRegisters
@@ -430,7 +452,7 @@ _MoveMon:
 	cp PARTY_TO_DAYCARE
 	ld de, wDayCareMonOT
 	jr z, .findOTsrc
-	dec a 
+	dec a
 	ld hl, wPartyMonOT
 	ld a, [wPartyCount]
 	jr nz, .addOToffset

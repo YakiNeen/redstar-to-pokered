@@ -37,8 +37,8 @@ TrainerPicAndMoneyPointers:
 	dw EngineerPic
 	money 5000
 
-	dw JugglerPic
-	money 3500
+	dw SwimmerFPic
+	money 500
 
 	dw FisherPic
 	money 3500
@@ -79,7 +79,7 @@ TrainerPicAndMoneyPointers:
 	dw ProfOakPic
 	money 9900
 
-	dw ChiefPic
+	dw GiovanniPic
 	money 3000
 
 	dw ScientistPic
@@ -141,3 +141,6 @@ TrainerPicAndMoneyPointers:
 
 	dw LancePic
 	money 9900
+
+	dw SoldierPic
+	money 7000

@@ -16,6 +16,14 @@ LoadPartyPokeballGfx:
 	lb bc, BANK(PokeballTileGraphics), (PokeballTileGraphicsEnd - PokeballTileGraphics) / $10
 	jp CopyVideoData
 
+	ds 9
+
+MissingNoBaseStats::
+; The PokedexOrder list assigns dex ID #000 to all MissingNo.
+; BaseStats + (MonBaseStatsEnd - MonBaseStats) * (000 - 1) = 0E:5FC2,
+; which is right here.
+INCLUDE "data/baseStats/missingno.asm"
+
 SetupOwnPartyPokeballs:
 	call PlacePlayerHUDTiles
 	ld hl, wPartyMon1
@@ -32,6 +40,8 @@ SetupOwnPartyPokeballs:
 
 SetupEnemyPartyPokeballs:
 	call PlaceEnemyHUDTiles
+	coord hl, 1, 1
+	ld [hl], " "
 	ld hl, wEnemyMons
 	ld de, wEnemyPartyCount
 	call SetupPokeballs
@@ -121,33 +131,63 @@ PlacePlayerHUDTiles:
 	ld de, wHUDGraphicsTiles
 	ld bc, $3
 	call CopyData
+
+	ld a, [wBattleMonSpecies2]
+	and a
+	jr z, .pokeBallHUD
+	ld a, $75 ; exp bar right corner tile
+	ld [wHUDGraphicsTiles + 1], a
+.pokeBallHUD
+
 	coord hl, 18, 10
 	ld de, -1
 	jr PlaceHUDTiles
 
 PlayerBattleHUDGraphicsTiles:
 ; The tile numbers for specific parts of the battle display for the player's pokemon
-	db $73 ; unused ($73 is hardcoded into the routine that uses these bytes)
-	db $77 ; lower-right corner tile of the HUD
-	db $6F ; lower-left triangle tile of the HUD
+	db $72 ; upper-right tile of the HUD
+	db $74 ; lower-right corner tile of the HUD
+	db $76 ; lower-left triangle tile of the HUD
 
 PlaceEnemyHUDTiles:
 	ld hl, EnemyBattleHUDGraphicsTiles
 	ld de, wHUDGraphicsTiles
 	ld bc, $3
 	call CopyData
+
+	ld a, [wEnemyMonSpecies2]
+	and a
+	jr z, .pokeBallHUD
+	ld a, [wEnemyMon]
+	ld [wd11e], a
+	predef IndexToPokedex
+	ld hl, wPokedexOwned
+	ld a, [wd11e]
+	dec a
+	ld c, a
+	ld b, FLAG_TEST
+	predef FlagActionPredef
+	ld a, c
+	and a
+	jr z, .notOwned
+	coord hl, 1, 1
+	ld [hl], $78 ; caught pokeball tile
+.notOwned
+.pokeBallHUD
+
 	coord hl, 1, 2
 	ld de, $1
-	jr PlaceHUDTiles
+	jp PlaceHUDTiles
 
 EnemyBattleHUDGraphicsTiles:
 ; The tile numbers for specific parts of the battle display for the enemy
-	db $73 ; unused ($73 is hardcoded in the routine that uses these bytes)
-	db $74 ; lower-left corner tile of the HUD
-	db $78 ; lower-right triangle tile of the HUD
+	db $71 ; upper-left tile of the HUD
+	db $73 ; lower-left corner tile of the HUD
+	db $77 ; lower-right triangle tile of the HUD
 
 PlaceHUDTiles:
-	ld [hl], $73
+	ld a, [wHUDGraphicsTiles + 0]
+	ld [hl], a
 	ld bc, SCREEN_WIDTH
 	add hl, bc
 	ld a, [wHUDGraphicsTiles + 1] ; leftmost tile
@@ -155,7 +195,7 @@ PlaceHUDTiles:
 	ld a, 8
 .loop
 	add hl, de
-	ld [hl], $76
+	ld [hl], $66 ; horizontal bar tile
 	dec a
 	jr nz, .loop
 	add hl, de

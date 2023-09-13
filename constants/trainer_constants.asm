@@ -18,7 +18,7 @@ const_value = 1
 	trainer_const BIKER         ; $0A
 	trainer_const BURGLAR       ; $0B
 	trainer_const ENGINEER      ; $0C
-	trainer_const JUGGLER_X     ; $0D
+	trainer_const SWIMMER_F     ; $0D
 	trainer_const FISHER        ; $0E
 	trainer_const SWIMMER       ; $0F
 	trainer_const CUE_BALL      ; $10
@@ -32,7 +32,7 @@ const_value = 1
 	trainer_const BLACKBELT     ; $18
 	trainer_const SONY1         ; $19
 	trainer_const PROF_OAK      ; $1A
-	trainer_const CHIEF         ; $1B
+	trainer_const GIOVANNI2     ; $1B
 	trainer_const SCIENTIST     ; $1C
 	trainer_const GIOVANNI      ; $1D
 	trainer_const ROCKET        ; $1E
@@ -53,3 +53,8 @@ const_value = 1
 	trainer_const CHANNELER     ; $2D
 	trainer_const AGATHA        ; $2E
 	trainer_const LANCE         ; $2F
+	trainer_const SOLDIER       ; $30
+
+; trainer types
+LEVELS EQU 0
+MOVES  EQU 1

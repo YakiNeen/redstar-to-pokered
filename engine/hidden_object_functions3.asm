@@ -54,21 +54,31 @@ BookshelfTileIDs:
 	db_tx_pre ElevatorText
 	db GYM,          $1D
 	db_tx_pre BookOrSculptureText
-	db DOJO,         $1D
+	db DOJO,         $1E
 	db_tx_pre BookOrSculptureText
 	db GATE,         $22
 	db_tx_pre BookOrSculptureText
+	db MART,         $3E
+	db_tx_pre PokemonStuffText
 	db MART,         $54
 	db_tx_pre PokemonStuffText
 	db MART,         $55
+	db_tx_pre PokemonStuffText
+	db MART,         $6A
+	db_tx_pre PokemonStuffText
+	db POKECENTER,   $3E
 	db_tx_pre PokemonStuffText
 	db POKECENTER,   $54
 	db_tx_pre PokemonStuffText
 	db POKECENTER,   $55
 	db_tx_pre PokemonStuffText
+	db POKECENTER,   $6A
+	db_tx_pre PokemonStuffText
 	db LOBBY,        $50
 	db_tx_pre PokemonStuffText
-	db LOBBY,        $52
+	db LOBBY,        $51
+	db_tx_pre PokemonStuffText
+	db LOBBY,        $6A
 	db_tx_pre PokemonStuffText
 	db SHIP,         $36
 	db_tx_pre BookOrSculptureText

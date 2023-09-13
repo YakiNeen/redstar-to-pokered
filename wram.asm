@@ -350,6 +350,8 @@ wSerialEnemyMonsPatchList:: ; c5d0
 
 	ds 80
 
+wGenderTemp::
+wTempDVs::
 wTempPic::
 wOverworldMap:: ; c6e8
 	ds 1300
@@ -599,6 +601,10 @@ wAnimPalette:: ; cc79
 	ds 29
 
 wNPCMovementDirections2:: ; cc97
+
+wShinyMonFlag:: ; cc97
+; Bit 0 is set if the mon should be shiny
+; Bit 1 is set for enemy mon animation, reset for player mon animation
 
 wSwitchPartyMonTempBuffer:: ; cc97
 ; temporary buffer when swapping party mon data
@@ -914,8 +920,6 @@ wOptionsTextSpeedCursorX:: ; cd3d
 
 wBoxNumString:: ; cd3d
 
-wTrainerInfoTextBoxWidthPlus1:: ; cd3d
-
 wSwappedMenuItem:: ; cd3d
 
 wHoFMonSpecies:: ; cd3d
@@ -975,8 +979,6 @@ wDayCareNumLevelsGrown:: ; cd3e
 
 wOptionsBattleAnimCursorX:: ; cd3e
 
-wTrainerInfoTextBoxWidth:: ; cd3e
-
 wHoFPartyMonIndex:: ; cd3e
 
 wNumCreditsMonsDisplayed:: ; cd3e
@@ -1014,8 +1016,6 @@ wDayCareTotalCost:: ; cd3f
 wJigglypuffFacingDirections:: ; cd3f
 
 wOptionsBattleStyleCursorX:: ; cd3f
-
-wTrainerInfoTextBoxNextRowOffset:: ; cd3f
 
 wHoFMonLevel:: ; cd3f
 
@@ -1479,8 +1479,8 @@ wPrintItemPrices:: ; cf93
 wHPBarType:: ; cf94
 ; type of HP bar
 ; $00 = enemy HUD in battle
-; $01 = player HUD in battle / status screen
-; $02 = party menu
+; $01 = player HUD in battle
+; $02 = party menu / status screen
 
 wListMenuID:: ; cf94
 ; ID used by DisplayListMenuID
@@ -1608,6 +1608,8 @@ wTrainerClass:: ; d031
 
 wTrainerPicPointer:: ; d033
 	ds 2
+
+wTempLevel::
 	ds 1
 
 wTempMoveNameBuffer:: ; d036
@@ -1663,10 +1665,8 @@ wDamageMultipliers:: ; d05b
 ; bit 7: STAB
 	ds 1
 
-wLoneAttackNo:: ; d05c
-; which entry in LoneAttacks to use
 wGymLeaderNo:: ; d05c
-; it's actually the same thing as ^
+; which gym leader is being battled (brock = 1, misty = 2, etc)
 	ds 1
 wTrainerNo:: ; d05d
 ; which instance of [youngster, lass, etc] is this?
@@ -2068,6 +2068,8 @@ wMonHGrowthRate:: ; d0cb
 wMonHLearnset:: ; d0cc
 ; bit field
 	flag_array 50 + 5
+
+wMonHSpriteBank:: ; d0d3
 	ds 1
 
 wSavedTilesetType:: ; d0d4
@@ -2282,7 +2284,11 @@ wPseudoItemID:: ; d152
 wUnusedD153:: ; d153
 	ds 1
 
-	ds 2
+wIsTrainerBattle::
+	ds 1
+
+wWasTrainerBattle::
+	ds 1
 
 wEvoStoneItemID:: ; d156
 	ds 1
@@ -2535,7 +2541,10 @@ wSpriteSetID:: ; d3a8
 wObjectDataPointerTemp:: ; d3a9
 	ds 2
 
-	ds 2
+wNextEncounterLevel:: ; d3aa
+	ds 1
+wNextEncounterSpecies:: ; d3ab
+	ds 1
 
 wMapBackgroundTile:: ; d3ad
 ; the tile shown outside the boundaries of the map
@@ -2893,7 +2902,10 @@ wRoute18GateCurScript:: ; d669
 	ds 78
 wGameProgressFlagsEnd::
 
-	ds 56
+	ds 43
+
+wCurTrainerName::
+	ds 13
 
 wObtainedHiddenItemsFlags::
 	ds 14
@@ -3034,7 +3046,7 @@ wd730:: ; d730
 
 wd732:: ; d732
 ; bit 0: play time being counted
-; bit 1: remnant of debug mode? not set by the game code.
+; bit 1: debug mode bit
 ; if it is set
 ; 1. skips most of Prof. Oak's speech, and uses NINTEN as the player's name and SONY as the rival's name
 ; 2. does not have the player start in floor two of the player's house (instead sending them to [wLastMap])
@@ -3044,6 +3056,7 @@ wd732:: ; d732
 ; bit 4: jumped into hole (Pokemon Mansion, Seafoam Islands, Victory Road) or went down waterfall (Seafoam Islands), so the target warp is a "dungeon warp"
 ; bit 5: currently being forced to ride bike (cycling road)
 ; bit 6: map destination is [wLastBlackoutMap] (usually the last used pokemon center, but could be the player's house)
+; bit 7: cheat mode bit
 	ds 1
 
 wFlags_D733:: ; d733
@@ -3202,6 +3215,12 @@ wBoxMonNicks:: ds NAME_LENGTH * MONS_PER_BOX ; de06
 wBoxMonNicksEnd:: ; dee2
 
 wBoxDataEnd::
+
+wEXPBarPixelLength::  ds 1
+wEXPBarBaseEXP::      ds 3
+wEXPBarCurEXP::       ds 3
+wEXPBarNeededEXP::    ds 3
+wEXPBarKeepFullFlag:: ds 1
 
 
 SECTION "Stack", WRAM0[$df00]

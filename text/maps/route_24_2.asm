@@ -88,3 +88,67 @@ _Route24AfterBattleText6::
 	text "I did my best, I"
 	line "have no regrets!"
 	done
+
+_Route24DamianText1::
+	text "I'm not good at"
+	line "raising #MON."
+
+	para "I should release"
+	line "my CHARMANDER"
+	cont "because I haven't"
+	cont "raised it well..."
+
+	para "If you promise me"
+	line "you'll care for"
+	cont "it, it's yours."
+	done
+
+_Route24DamianText2::
+	text "Take good care of"
+	line "my CHARMANDER!@@"
+
+_Route24DamianText3::
+	text "Oh... I'd better"
+	line "release it then."
+	done
+
+_Route24DamianText4::
+	text "How's CHARMANDER"
+	line "doing?"
+	done
+
+_Route24DamianText5::
+	text "I'm not good at"
+	line "raising #MON."
+
+	para "I can't use this"
+	line "item on my"
+	cont "CHARMANDER..."
+
+	para "It would just"
+	line "be a waste."
+
+	para "You have a"
+	line "CHARMANDER too?"
+
+	para "If you promise me"
+	line "you'll care for"
+	cont "it, this item is"
+	cont "yours."
+	prompt
+
+_Route24DamianText6::
+	text "<PLAYER> got"
+	line "@"
+	TX_RAM wcf4b
+	text "!@@"
+
+_Route24DamianText7::
+	text "Oh... You can't"
+	line "carry this."
+	done
+
+_Route24DamianText8::
+	text "How's your CHAR-"
+	line "MANDER doing?"
+	done

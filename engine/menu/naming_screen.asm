@@ -34,6 +34,7 @@ AskName:
 	and a
 	jr nz, .inBattle
 	call ReloadMapSpriteTilePatterns
+	call ReloadMapData
 .inBattle
 	call LoadScreenTilesFromBuffer1
 	pop hl
@@ -324,16 +325,14 @@ DisplayNamingScreen:
 	jp EraseMenuCursor
 
 LoadEDTile:
-	ld de, ED_Tile
-	ld hl, vFont + $700
-	ld bc, (ED_TileEnd - ED_Tile) / $8
-	; to fix the graphical bug on poor emulators
-	;lb bc, BANK(ED_Tile), (ED_TileEnd - ED_Tile) / $8
+	ld de, NamingScreenTiles
+	ld hl, vFont + $690
+	lb bc, BANK(NamingScreenTiles), (NamingScreenTilesEnd - NamingScreenTiles) / $8
 	jp CopyVideoDataDouble
 
-ED_Tile:
-	INCBIN "gfx/ED_tile.1bpp"
-ED_TileEnd:
+NamingScreenTiles:
+	INCBIN "gfx/naming_screen.1bpp"
+NamingScreenTilesEnd:
 
 PrintAlphabet:
 	xor a
@@ -366,10 +365,10 @@ PrintAlphabet:
 	jp Delay3
 
 LowerCaseAlphabet:
-	db "abcdefghijklmnopqrstuvwxyz ×():;[]",$e1,$e2,"-?!♂♀/⠄,¥UPPER CASE@"
+	db "abcdefghijklmnopqrstuvwxyz ×():;[]<PK><MN>-?!♂♀/.,",$EB,"UPPER CASE@"
 
 UpperCaseAlphabet:
-	db "ABCDEFGHIJKLMNOPQRSTUVWXYZ ×():;[]",$e1,$e2,"-?!♂♀/⠄,¥lower case@"
+	db "ABCDEFGHIJKLMNOPQRSTUVWXYZ ×():;[]<PK><MN>-?!♂♀/.,",$EB,"lower case@"
 
 PrintNicknameAndUnderscores:
 	call CalcStringLength
@@ -390,7 +389,7 @@ PrintNicknameAndUnderscores:
 .pokemon1
 	ld b, 10 ; pokemon max name length
 .playerOrRival1
-	ld a, $76 ; underscore tile id
+	ld a, $E9 ; underscore tile id
 .placeUnderscoreLoop
 	ld [hli], a
 	dec b
@@ -422,7 +421,7 @@ PrintNicknameAndUnderscores:
 	ld b, $0
 	coord hl, 10, 3
 	add hl, bc
-	ld [hl], $77 ; raised underscore tile id
+	ld [hl], $EA ; raised underscore tile id
 	ret
 
 DakutensAndHandakutens:
@@ -485,9 +484,6 @@ PrintNamingText:
 	call GetMonName
 	coord hl, 4, 1
 	call PlaceString
-	ld hl, $1
-	add hl, bc
-	ld [hl], $c9
 	coord hl, 1, 3
 	ld de, NicknameTextString
 	jr .placeString

@@ -10,7 +10,9 @@ TryDoWildEncounter:
 	callab IsPlayerStandingOnDoorTileOrWarpTile
 	jr nc, .notStandingOnDoorOrWarpTile
 .CantEncounter
-	ld a, $1
+	xor a
+	ld [wNextEncounterSpecies], a
+	inc a
 	and a
 	ret
 .notStandingOnDoorOrWarpTile
@@ -46,8 +48,11 @@ TryDoWildEncounter:
 	jr z, .CantEncounter2
 	ld a, [wGrassRate]
 .CanEncounter
-; compare encounter chance with a random number to determine if there will be an encounter
 	ld b, a
+	ld a, [wNextEncounterSpecies]
+	and a
+	jr nz, .WillEncounterIfNotRepelled
+; compare encounter chance with a random number to determine if there will be an encounter
 	ld a, [hRandomAdd]
 	cp b
 	jr nc, .CantEncounter2
@@ -74,19 +79,18 @@ TryDoWildEncounter:
 	ld b, 0
 	add hl, bc
 	ld a, [hli]
-	ld [wCurEnemyLVL], a
+	ld [wNextEncounterLevel], a
 	ld a, [hl]
-	ld [wcf91], a
-	ld [wEnemyMonSpecies2], a
+	ld [wNextEncounterSpecies], a
 	ld a, [wRepelRemainingSteps]
 	and a
-	jr z, .willEncounter
+	jr z, .willEncounterNext
 	ld a, [wPartyMon1Level]
 	ld b, a
-	ld a, [wCurEnemyLVL]
+	ld a, [wNextEncounterLevel]
 	cp b
 	jr c, .CantEncounter2 ; repel prevents encounters if the leading party mon's level is higher than the wild mon
-	jr .willEncounter
+	jr .willEncounterNext
 .lastRepelStep
 	ld [wRepelRemainingSteps], a
 	ld a, TEXT_REPEL_WORE_OFF
@@ -94,11 +98,29 @@ TryDoWildEncounter:
 	call EnableAutoTextBoxDrawing
 	call DisplayTextID
 .CantEncounter2
+	xor a
+	ld [wNextEncounterSpecies], a
+.willEncounterNext
 	ld a, $1
 	and a
 	ret
+.WillEncounterIfNotRepelled
+	ld a, [wRepelRemainingSteps]
+	and a
+	jr z, .willEncounter
+	ld a, [wPartyMon1Level]
+	ld b, a
+	ld a, [wNextEncounterLevel]
+	cp b
+	jr c, .CantEncounter2 ; repel prevents encounters if the leading party mon's level is higher than the wild mon
 .willEncounter
+	ld a, [wNextEncounterLevel]
+	ld [wCurEnemyLVL], a
+	ld a, [wNextEncounterSpecies]
+	ld [wcf91], a
+	ld [wEnemyMonSpecies2], a
 	xor a
+	ld [wIsTrainerBattle], a
 	ret
 
 WildMonEncounterSlotChances:
@@ -113,6 +135,6 @@ WildMonEncounterSlotChances:
 	db $BE, $08 ; 25/256 =  9.8% chance of slot 4
 	db $D7, $0A ; 25/256 =  9.8% chance of slot 5
 	db $E4, $0C ; 13/256 =  5.1% chance of slot 6
-	db $F1, $0E ; 13/256 =  5.1% chance of slot 7
-	db $FC, $10 ; 11/256 =  4.3% chance of slot 8
-	db $FF, $12 ;  3/256 =  1.2% chance of slot 9
+	db $EF, $0E ; 11/256 =  4.3% chance of slot 7
+	db $FA, $10 ; 11/256 =  4.3% chance of slot 8
+	db $FF, $12 ;  5/256 =  1.9% chance of slot 9

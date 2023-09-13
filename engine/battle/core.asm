@@ -184,6 +184,15 @@ SlidePlayerAndEnemySilhouettesOnScreen:
 	inc a
 	ld [H_AUTOBGTRANSFERENABLED], a
 	call Delay3
+	ld de, wEnemyMonDVs
+	callba IsMonShiny
+	ld hl, wShinyMonFlag
+	jr nz, .shiny
+	res 0, [hl]
+	jr .setPal
+.shiny
+	set 0, [hl]
+.setPal
 	ld b, SET_PAL_BATTLE
 	call RunPaletteCommand
 	call HideSprites
@@ -450,9 +459,11 @@ MainInBattleLoop:
 	ld b, 0
 	add hl, bc
 	ld a, [hl]
-	cp METRONOME ; a MIRROR MOVE check is missing, might lead to a desync in link battles
-	             ; when combined with multi-turn moves
+	cp MIRROR_MOVE
+	jr z, .specialMoveUsed
+	cp METRONOME
 	jr nz, .specialMoveNotUsed
+.specialMoveUsed
 	ld [wPlayerSelectedMove], a
 .specialMoveNotUsed
 	callab SwitchEnemyMon
@@ -834,17 +845,10 @@ FaintEnemyPokemon:
 .wild
 	ld hl, wPlayerBattleStatus1
 	res ATTACKING_MULTIPLE_TIMES, [hl]
-; Bug. This only zeroes the high byte of the player's accumulated damage,
-; setting the accumulated damage to itself mod 256 instead of 0 as was probably
-; intended. That alone is problematic, but this mistake has another more severe
-; effect. This function's counterpart for when the player mon faints,
-; RemoveFaintedPlayerMon, zeroes both the high byte and the low byte. In a link
-; battle, the other player's Game Boy will call that function in response to
-; the enemy mon (the player mon from the other side's perspective) fainting,
-; and the states of the two Game Boys will go out of sync unless the damage
-; was congruent to 0 modulo 256.
 	xor a
-	ld [wPlayerBideAccumulatedDamage], a
+	ld hl, wPlayerBideAccumulatedDamage
+	ld [hli], a
+	ld [hl], a
 	ld hl, wEnemyStatsToDouble ; clear enemy statuses
 	ld [hli], a
 	ld [hli], a
@@ -1033,6 +1037,12 @@ TrainerBattleVictory:
 ; win money
 	ld hl, MoneyForWinningText
 	call PrintText
+
+	xor a
+	ld [wIsTrainerBattle], a
+	inc a
+	ld [wWasTrainerBattle], a
+
 	ld de, wPlayerMoney + 2
 	ld hl, wAmountMoneyWon + 2
 	ld c, $3
@@ -1220,6 +1230,8 @@ ChooseNextMon:
 ; called when player is out of usable mons.
 ; prints appropriate lose message, sets carry flag if player blacked out (special case for initial rival fight)
 HandlePlayerBlackOut:
+	xor a
+	ld [wIsTrainerBattle], a
 	ld a, [wLinkState]
 	cp LINK_STATE_BATTLING
 	jr z, .notSony1Battle
@@ -1519,6 +1531,13 @@ EnemySendOutFirstMon:
 	ld [hStartTileID], a
 	coord hl, 15, 6
 	predef AnimateSendingOutMon
+	ld de, wEnemyMonDVs
+	callba IsMonShiny
+	jr z, .noFlash
+	ld hl, wShinyMonFlag
+	set 1, [hl]
+	callba PlayShinySparkleAnimation
+.noFlash
 	ld a, [wEnemyMonSpecies2]
 	call PlayCry
 	call DrawEnemyHUDAndHPBar
@@ -1849,6 +1868,13 @@ SendOutMon:
 	call PlayMoveAnimation
 	coord hl, 4, 11
 	predef AnimateSendingOutMon
+	ld de, wBattleMonDVs
+	callba IsMonShiny
+	jr z, .noFlash
+	ld hl, wShinyMonFlag
+	res 1, [hl]
+	callba PlayShinySparkleAnimation
+.noFlash
 	ld a, [wcf91]
 	call PlayCry
 	call PrintEmptyString
@@ -1913,6 +1939,15 @@ DrawPlayerHUDAndHPBar:
 	coord hl, 10, 7
 	call CenterMonName
 	call PlaceString
+	coord hl, 17, 8
+	ld a, [wBattleMonSpecies]
+	ld de, wBattleMonDVs
+	call PrintMonGender
+	coord hl, 18, 8
+	ld de, wBattleMonDVs
+	call PrintMonShiny
+	coord de, 17, 11 ; right end
+	call PrintEXPBar
 	ld hl, wBattleMonSpecies
 	ld de, wLoadedMon
 	ld bc, wBattleMonDVs - wBattleMonSpecies
@@ -1921,9 +1956,8 @@ DrawPlayerHUDAndHPBar:
 	ld de, wLoadedMonLevel
 	ld bc, wBattleMonPP - wBattleMonLevel
 	call CopyData
-	coord hl, 14, 8
+	coord hl, 13, 8
 	push hl
-	inc hl
 	ld de, wLoadedMonStatus
 	call PrintStatusConditionNotFainted
 	pop hl
@@ -1972,9 +2006,15 @@ DrawEnemyHUDAndHPBar:
 	coord hl, 1, 0
 	call CenterMonName
 	call PlaceString
+	coord hl, 8, 1
+	ld a, [wEnemyMonSpecies]
+	ld de, wEnemyMonDVs
+	call PrintMonGender
+	coord hl, 9, 1
+	ld de, wEnemyMonDVs
+	call PrintMonShiny
 	coord hl, 4, 1
 	push hl
-	inc hl
 	ld de, wEnemyMonStatus
 	call PrintStatusConditionNotFainted
 	pop hl
@@ -2084,6 +2124,38 @@ CenterMonName:
 	jr nz, .loop
 .done
 	pop de
+	ret
+
+PrintMonGender:
+	ld [wGenderTemp], a
+	push hl
+	callba GetMonGender
+	ld a, [wGenderTemp]
+	and a
+	jr z, .genderless
+	dec a
+	ld a, "♂"
+	jr z, .ok
+	ld a, "♀"
+	jr .ok
+.genderless
+	ld a, " "
+.ok
+	pop hl
+	ld [hl], a
+	ret
+
+PrintMonShiny:
+	push hl
+	callba IsMonShiny
+	jr z, .notShiny
+	ld a, "<SHINY>"
+	jr .ok
+.notShiny
+	ld a, " "
+.ok
+	pop hl
+	ld [hl], a
 	ret
 
 DisplayBattleMenu:
@@ -3141,7 +3213,6 @@ ExecutePlayerMove:
 	ld [wMoveMissed], a
 	ld [wMonIsDisobedient], a
 	ld [wMoveDidntMiss], a
-	ld a, $a
 	ld [wDamageMultipliers], a
 	ld a, [wActionResultOrTookBattleTurn]
 	and a ; has the player already used the turn (e.g. by using an item, trying to run or switching pokemon)
@@ -3928,7 +3999,7 @@ PrintMoveFailureText:
 .playersTurn
 	ld hl, DoesntAffectMonText
 	ld a, [wDamageMultipliers]
-	and $7f
+	cp $7f
 	jr z, .gotTextToPrint
 	ld hl, AttackMissedText
 	ld a, [wCriticalHitOrOHKO]
@@ -4319,7 +4390,11 @@ GetDamageVarsForPlayerAttack:
 	rr c
 	srl b
 	rr c
-; defensive stat can actually end up as 0, leading to a division by 0 freeze during damage calculation
+	ld a, c
+	or b ; is the enemy's defensive stat 0?
+	jr nz, .player
+	inc c ; if the enemy's defensive stat is 0, bump it up to 1
+.player
 ; hl /= 4 (scale player's offensive stat)
 	srl h
 	rr l
@@ -4708,14 +4783,13 @@ CriticalHitTest:
 	ld c, [hl]                   ; read move id
 	ld a, [de]
 	bit GETTING_PUMPED, a         ; test for focus energy
-	jr nz, .focusEnergyUsed      ; bug: using focus energy causes a shift to the right instead of left,
-	                             ; resulting in 1/4 the usual crit chance
+	jr nz, .focusEnergyUsed
 	sla b                        ; (effective (base speed/2)*2)
 	jr nc, .noFocusEnergyUsed
 	ld b, $ff                    ; cap at 255/256
 	jr .noFocusEnergyUsed
 .focusEnergyUsed
-	srl b
+	sla b                        ; *2 for focus energy or dire hit
 .noFocusEnergyUsed
 	ld hl, HighCriticalMoves     ; table of high critical hit moves
 .Loop
@@ -5309,6 +5383,15 @@ AdjustDamageForMoveType:
 	ld a, [wEnemyMoveType]
 	ld [wMoveType], a
 .next
+; store wDamage in the multiplicand beforehand
+	xor a
+	ld [H_MULTIPLICAND], a
+	ld hl, wDamage
+	ld a, [hli]
+	ld [H_MULTIPLICAND + 1], a
+	ld a, [hl]
+	ld [H_MULTIPLICAND + 2], a
+; continue on
 	ld a, [wMoveType]
 	cp b ; does the move type match type 1 of the attacker?
 	jr z, .sameTypeAttackBonus
@@ -5317,22 +5400,17 @@ AdjustDamageForMoveType:
 	jr .skipSameTypeAttackBonus
 .sameTypeAttackBonus
 ; if the move type matches one of the attacker's types
-	ld hl, wDamage + 1
-	ld a, [hld]
-	ld h, [hl]
-	ld l, a    ; hl = damage
-	ld b, h
-	ld c, l    ; bc = damage
-	srl b
-	rr c      ; bc = floor(0.5 * damage)
-	add hl, bc ; hl = floor(1.5 * damage)
-; store damage
-	ld a, h
-	ld [wDamage], a
-	ld a, l
-	ld [wDamage + 1], a
+; multiply by 3/2
+	ld hl, H_MULTIPLIER
+	ld [hl], 3
+	call Multiply
+
+	ld [hl], 2
+	ld b, 4
+	call Divide
+
 	ld hl, wDamageMultipliers
-	set 7, [hl]
+	set 7, [hl] ; STAB
 .skipSameTypeAttackBonus
 	ld a, [wMoveType]
 	ld b, a
@@ -5340,7 +5418,7 @@ AdjustDamageForMoveType:
 .loop
 	ld a, [hli] ; a = "attacking type" of the current type pair
 	cp $ff
-	jr z, .done
+	jr z, StoreDamage
 	cp b ; does move type match "attacking type"?
 	jr nz, .nextTypePair
 	ld a, [hl] ; a = "defending type" of the current type pair
@@ -5354,45 +5432,54 @@ AdjustDamageForMoveType:
 	push hl
 	push bc
 	inc hl
-	ld a, [wDamageMultipliers]
-	and $80
-	ld b, a
 	ld a, [hl] ; a = damage multiplier
 	ld [H_MULTIPLIER], a
-	add b
-	ld [wDamageMultipliers], a
-	xor a
-	ld [H_MULTIPLICAND], a
-	ld hl, wDamage
-	ld a, [hli]
-	ld [H_MULTIPLICAND + 1], a
-	ld a, [hld]
-	ld [H_MULTIPLICAND + 2], a
+
+; done if type immunity
+	and a
+	jr z, .typeImmunityDone
+
+; update damage multipliers
+	cp $a
+	ld hl, wDamageMultipliers
+	jr c, .nve
+	set 1, [hl]
+	jr .multiply
+.nve
+	set 0, [hl]
+; apply damage multiplier
+.multiply
 	call Multiply
+
+; divide by 10
 	ld a, 10
 	ld [H_DIVISOR], a
 	ld b, $04
 	call Divide
-	ld a, [H_QUOTIENT + 2]
-	ld [hli], a
-	ld b, a
-	ld a, [H_QUOTIENT + 3]
-	ld [hl], a
-	or b ; is damage 0?
-	jr nz, .skipTypeImmunity
-.typeImmunity
-; if damage is 0, make the move miss
-; this only occurs if a move that would do 2 or 3 damage is 0.25x effective against the target
-	inc a
-	ld [wMoveMissed], a
-.skipTypeImmunity
 	pop bc
 	pop hl
 .nextTypePair
 	inc hl
 	inc hl
 	jp .loop
-.done
+
+.typeImmunityDone
+	call StoreDamage
+	ld a, $7f
+	ld [wDamageMultipliers], a
+	ld a, 1
+	ld [wMoveMissed], a
+	pop bc
+	pop hl
+	ret
+
+StoreDamage:
+; store the resuly of those multiply/divide operations back in wDamage
+	ld hl, wDamage
+	ld a, [H_QUOTIENT + 2]
+	ld [hli], a
+	ld a, [H_QUOTIENT + 3]
+	ld [hl], a
 	ret
 
 ; function to tell how effective the type of an enemy attack is on the player's current pokemon
@@ -5686,7 +5773,6 @@ ExecuteEnemyMove:
 	xor a
 	ld [wMoveMissed], a
 	ld [wMoveDidntMiss], a
-	ld a, $a
 	ld [wDamageMultipliers], a
 	call CheckEnemyStatusConditions
 	jr nz, .enemyHasNoSpecialConditions
@@ -6213,10 +6299,14 @@ LoadEnemyMonData:
 	jr nz, .storeDVs
 	ld a, [wIsInBattle]
 	cp $2 ; is it a trainer battle?
-; fixed DVs for trainer mon
-	ld a, $98
-	ld b, $88
-	jr z, .storeDVs
+	jr nz, .notTrainer
+; get DVs for trainer mon
+	callba GetTrainerMonDVs
+	ld hl, wTempDVs
+	ld a, [hli]
+	ld b, [hl]
+	jr .storeDVs
+.notTrainer
 ; random DVs for wild mon
 	call BattleRandom
 	ld b, a
@@ -6416,7 +6506,7 @@ LoadPlayerBackPic:
 .next
 	ld a, BANK(RedPicBack)
 	call UncompressSpriteFromDE
-	predef ScaleSpriteByTwo
+	call LoadBackSpriteUnzoomed
 	ld hl, wOAMBuffer
 	xor a
 	ld [hOAMTile], a ; initial tile number
@@ -6448,8 +6538,6 @@ LoadPlayerBackPic:
 	ld e, a
 	dec b
 	jr nz, .loop
-	ld de, vBackPic
-	call InterlaceMergeSpriteBuffers
 	ld a, $a
 	ld [$0], a
 	xor a
@@ -6719,24 +6807,15 @@ LoadHudTilePatterns:
 	add a ; is LCD disabled?
 	jr c, .lcdEnabled
 .lcdDisabled
-	ld hl, BattleHudTiles1
-	ld de, vChars2 + $6d0
-	ld bc, BattleHudTiles1End - BattleHudTiles1
-	ld a, BANK(BattleHudTiles1)
-	call FarCopyDataDouble
-	ld hl, BattleHudTiles2
-	ld de, vChars2 + $730
-	ld bc, BattleHudTiles3End - BattleHudTiles2
-	ld a, BANK(BattleHudTiles2)
+	ld hl, BattleHudTiles
+	ld de, vChars2 + $700
+	ld bc, BattleHudTilesEnd - BattleHudTiles
+	ld a, BANK(BattleHudTiles)
 	jp FarCopyDataDouble
 .lcdEnabled
-	ld de, BattleHudTiles1
-	ld hl, vChars2 + $6d0
-	lb bc, BANK(BattleHudTiles1), (BattleHudTiles1End - BattleHudTiles1) / $8
-	call CopyVideoDataDouble
-	ld de, BattleHudTiles2
-	ld hl, vChars2 + $730
-	lb bc, BANK(BattleHudTiles2), (BattleHudTiles3End - BattleHudTiles2) / $8
+	ld de, BattleHudTiles
+	ld hl, vChars2 + $700
+	lb bc, BANK(BattleHudTiles), (BattleHudTilesEnd - BattleHudTiles) / $8
 	jp CopyVideoDataDouble
 
 PrintEmptyString:
@@ -6859,6 +6938,8 @@ DetermineWildOpponent:
 	callab TryDoWildEncounter
 	ret nz
 InitBattleCommon:
+	xor a
+	ld [wNextEncounterSpecies], a
 	ld a, [wMapPalOffset]
 	push af
 	ld hl, wLetterPrintingDelayFlags
@@ -6866,9 +6947,11 @@ InitBattleCommon:
 	push af
 	res 1, [hl]
 	callab InitBattleVariables
+	ld a, [wIsTrainerBattle]
+	and a
+	jp z, InitWildBattle
 	ld a, [wEnemyMonSpecies2]
 	sub 200
-	jp c, InitWildBattle
 	ld [wTrainerClass], a
 	call GetTrainerInformation
 	callab ReadTrainer
@@ -6986,8 +7069,14 @@ _LoadTrainerPic:
 	ld d, a ; de contains pointer to trainer pic
 	ld a, [wLinkState]
 	and a
-	ld a, Bank(TrainerPics) ; this is where all the trainer pics are (not counting Red's)
-	jr z, .loadSprite
+	jr nz, .useRed
+	ld a, [wTrainerClass]
+	cp SONY1 ; first trainer class in "Trainer Pics 2"
+	ld a, Bank("Trainer Pics 2")
+	jr nc, .loadSprite
+	ld a, Bank("Trainer Pics 1")
+	jr .loadSprite
+.useRed
 	ld a, Bank(RedPicFront)
 .loadSprite
 	call UncompressSpriteFromDE
@@ -7108,9 +7197,7 @@ LoadMonBackPic:
 	call ClearScreenArea
 	ld hl,  wMonHBackSprite - wMonHeader
 	call UncompressMonSprite
-	predef ScaleSpriteByTwo
-	ld de, vBackPic
-	call InterlaceMergeSpriteBuffers ; combine the two buffers to a single 2bpp sprite
+	call LoadBackSpriteUnzoomed
 	ld hl, vSprites
 	ld de, vBackPic
 	ld c, (2*SPRITEBUFFERSIZE)/16 ; count of 16-byte chunks to be copied
@@ -8717,3 +8804,175 @@ PlayBattleAnimationGotID:
 	pop de
 	pop hl
 	ret
+
+PrintEXPBar:
+	push de
+	call CalcEXPBarPixelLength
+	ld a, [H_QUOTIENT + 3]
+	ld [wEXPBarPixelLength], a
+	ld b, a
+	pop hl
+	ld c, 8
+	ld d, 8
+.loop
+	ld a, b
+	sub c
+	jr nc, .skip
+	ld c, b
+	jr .loop
+.skip
+	ld b, a
+	ld a, $C0 ; first (empty) exp bar tile
+	add c
+.loop2
+	ld [hld], a
+	dec d
+	ret z
+	ld a, b
+	and a
+	jr nz, .loop
+	ld a, $C0 ; empty exp bar tile
+	jr .loop2
+
+CalcEXPBarPixelLength:
+	ld hl, wEXPBarKeepFullFlag
+	bit 0, [hl]
+	jr z, .start
+	res 0, [hl]
+	ld a, 8 * 8
+	ld [H_QUOTIENT + 3], a
+	ret
+
+.start
+	; get the base exp needed for the current level
+	ld hl, wd72c
+	bit 1, [hl] ; bit 1 = fading out audio; is set for the status screen
+	ld hl, wLoadedMonSpecies
+	jr nz, .got_species
+	ld hl, wBattleMonSpecies
+	ld a, [wPlayerBattleStatus3]
+	bit 3, a ; transformed?
+	jr z, .got_species
+	ld hl, wPartyMon1
+	ld a, [wPlayerMonNumber]
+	ld bc, wPartyMon2 - wPartyMon1
+	call AddNTimes
+.got_species
+
+	ld a, [hl]
+	ld [wd0b5], a
+	call GetMonHeader
+	ld a, [wBattleMonLevel]
+	ld d, a
+	callab CalcExperience
+	ld hl, hExperience
+	ld de, wEXPBarBaseEXP
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hl]
+	ld [de], a
+
+	; get the exp needed to gain a level
+	ld a, [wBattleMonLevel]
+	ld d, a
+	inc d
+	callab CalcExperience
+
+	; get the address of the active Pokemon's current experience
+	ld hl, wd72c
+	bit 1, [hl]
+	ld hl, wLoadedMonExp
+	jr nz, .got_cur_exp
+	ld hl, wPartyMon1Exp
+	ld a, [wPlayerMonNumber]
+	ld bc, wPartyMon2 - wPartyMon1
+	call AddNTimes
+.got_cur_exp
+
+	; current exp - base exp
+	ld b, h
+	ld c, l
+	ld hl, wEXPBarBaseEXP
+	ld de, wEXPBarCurEXP
+	call SubThreeByteNum
+
+	; exp needed - base exp
+	ld bc, H_MULTIPLICAND
+	ld hl, wEXPBarBaseEXP
+	ld de, wEXPBarNeededEXP
+	call SubThreeByteNum
+
+	; make the divisor an 8-bit number
+	ld hl, wEXPBarNeededEXP
+	ld de, wEXPBarCurEXP + 1
+	ld a, [hli]
+	and a
+	jr z, .twoBytes
+	ld a, [hli]
+	ld [hld], a
+	dec hl
+	ld a, [hli]
+	ld [hld], a
+	ld a, [de]
+	inc de
+	ld [de], a
+	dec de
+	dec de
+	ld a, [de]
+	inc de
+	ld [de], a
+	dec de
+	xor a
+	ld [hli], a
+	ld [de], a
+	inc de
+.twoBytes
+	ld a, [hl]
+	and a
+	jr z, .oneByte
+	srl a
+	ld [hli], a
+	ld a, [hl]
+	rr a
+	ld [hld], a
+	ld a, [de]
+	srl a
+	ld [de], a
+	inc de
+	ld a, [de]
+	rr a
+	ld [de], a
+	dec de
+	jr .twoBytes
+.oneByte
+
+	; current exp * (8 tiles * 8 pixels)
+	ld hl, H_MULTIPLICAND
+	ld de, wEXPBarCurEXP
+	ld a, [de]
+	inc de
+	ld [hli], a
+	ld a, [de]
+	inc de
+	ld [hli], a
+	ld a, [de]
+	ld [hl], a
+	ld a, $40
+	ld [H_MULTIPLIER], a
+	call Multiply
+
+	; product / needed exp = pixel length
+	ld a, [wEXPBarNeededEXP + 2]
+	ld [H_DIVISOR], a
+	ld b, 4
+	jp Divide
+
+LoadBackSpriteUnzoomed:
+	ld a, $66
+	ld de, vBackPic
+	push de
+	jp LoadUncompressedBackSprite

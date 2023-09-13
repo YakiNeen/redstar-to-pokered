@@ -56,7 +56,7 @@ DisplayTitleScreen:
 	ld a, BANK(PokemonLogoGraphics)
 	call FarCopyData2          ; second chunk
 	ld hl, Version_GFX
-	ld de, vChars2 + $600 - (Version_GFXEnd - Version_GFX - $50)
+	ld de, vChars2 + $600
 	ld bc, Version_GFXEnd - Version_GFX
 	ld a, BANK(Version_GFX)
 	call FarCopyDataDouble
@@ -252,6 +252,9 @@ ENDC
 	and D_UP | SELECT | B_BUTTON
 	cp D_UP | SELECT | B_BUTTON
 	jp z, .doClearSaveDialogue
+	ld a, b
+	bit BIT_SELECT, a
+	jp nz, DebugMenu
 	jp MainMenu
 
 .doClearSaveDialogue
@@ -392,12 +395,13 @@ PrintGameVersionOnTitleScreen:
 
 ; these point to special tiles specifically loaded for that purpose and are not usual text
 VersionOnTitleScreenText:
+	db $60,$61,$62,$63,$64,$65,$66,$67,$68,"@" ; "Red#/Blue# Version"
+
 IF DEF(_RED)
-	db $60,$61,$7F,$65,$66,$67,$68,$69,"@" ; "Red Version"
+NintenText: db "RED@"
+SonyText:   db "BLUE@"
 ENDC
 IF DEF(_BLUE)
-	db $61,$62,$63,$64,$65,$66,$67,$68,"@" ; "Blue Version"
+NintenText: db "BLUE@"
+SonyText:   db "RED@"
 ENDC
-
-NintenText: db "NINTEN@"
-SonyText:   db "SONY@"

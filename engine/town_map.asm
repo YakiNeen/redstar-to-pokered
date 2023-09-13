@@ -11,9 +11,8 @@ DisplayTownMap:
 	push af
 	ld b, $0
 	call DrawPlayerOrBirdSprite ; player sprite
-	coord hl, 1, 0
 	ld de, wcd6d
-	call PlaceString
+	call PlaceMapName
 	ld hl, wOAMBuffer
 	ld de, wTileMapBackup
 	ld bc, $10
@@ -29,7 +28,7 @@ DisplayTownMap:
 
 .townMapLoop
 	coord hl, 0, 0
-	lb bc, 1, 20
+	lb bc, 2, 10
 	call ClearScreenArea
 	ld hl, TownMapOrder
 	ld a, [wWhichTownMapLocation]
@@ -55,9 +54,8 @@ DisplayTownMap:
 	inc de
 	cp $50
 	jr nz, .copyMapName
-	coord hl, 1, 0
 	ld de, wcd6d
-	call PlaceString
+	call PlaceMapName
 	ld hl, wOAMBuffer + $10
 	ld de, wTileMapBackup + 16
 	ld bc, $10
@@ -118,10 +116,9 @@ LoadTownMap_Nest:
 	push hl
 	call DisplayWildLocations
 	call GetMonName
-	coord hl, 1, 0
+	coord hl, 0, 0
 	call PlaceString
-	ld h, b
-	ld l, c
+	coord hl, 0, 1
 	ld de, MonsNestText
 	call PlaceString
 	call WaitForTextScrollButtonPress
@@ -132,7 +129,7 @@ LoadTownMap_Nest:
 	ret
 
 MonsNestText:
-	db "'s NEST@"
+	db "NESTS@"
 
 LoadTownMap_Fly:
 	call ClearSprites
@@ -143,45 +140,30 @@ LoadTownMap_Fly:
 	ld hl, vSprites + $40
 	lb bc, BANK(BirdSprite), $c
 	call CopyVideoData
-	ld de, TownMapUpArrow
-	ld hl, vChars1 + $6d0
-	lb bc, BANK(TownMapUpArrow), (TownMapUpArrowEnd - TownMapUpArrow) / $8
-	call CopyVideoDataDouble
 	call BuildFlyLocationsList
 	ld hl, wUpdateSpritesEnabled
 	ld a, [hl]
 	push af
 	ld [hl], $ff
 	push hl
-	coord hl, 0, 0
-	ld de, ToText
-	call PlaceString
 	ld a, [wCurMap]
 	ld b, $0
 	call DrawPlayerOrBirdSprite
 	ld hl, wFlyLocationsList
-	coord de, 18, 0
 .townMapFlyLoop
-	ld a, " "
-	ld [de], a
 	push hl
 	push hl
-	coord hl, 3, 0
-	lb bc, 1, 15
+	coord hl, 0, 0
+	lb bc, 2, 10
 	call ClearScreenArea
 	pop hl
 	ld a, [hl]
 	ld b, $4
 	call DrawPlayerOrBirdSprite ; draw bird sprite
-	coord hl, 3, 0
 	ld de, wcd6d
-	call PlaceString
+	call PlaceMapName
 	ld c, 15
 	call DelayFrames
-	coord hl, 18, 0
-	ld [hl], "▲"
-	coord hl, 19, 0
-	ld [hl], "▼"
 	pop hl
 .inputLoop
 	push hl
@@ -243,9 +225,6 @@ LoadTownMap_Fly:
 	ld hl, wFlyLocationsList + 11
 	jr .pressedDown
 
-ToText:
-	db "To@"
-
 BuildFlyLocationsList:
 	ld hl, wFlyLocationsList - 1
 	ld [hl], $ff
@@ -269,10 +248,6 @@ BuildFlyLocationsList:
 	jr nz, .loop
 	ld [hl], $ff
 	ret
-
-TownMapUpArrow:
-	INCBIN "gfx/up_arrow.1bpp"
-TownMapUpArrowEnd:
 
 LoadTownMap:
 	call GBPalWhiteOutWithDelay3
@@ -384,6 +359,10 @@ DisplayWildLocations:
 	cp $19 ; Cerulean Cave's coordinates
 	jr z, .nextEntry ; skip Cerulean Cave
 	call TownMapCoordsToOAMCoords
+	dec hl
+	inc [hl] ; shift nest icons down 1 pixel
+	inc hl
+	inc hl
 	ld a, $4 ; nest icon tile no.
 	ld [hli], a
 	xor a
@@ -419,11 +398,11 @@ AreaUnknownText:
 
 TownMapCoordsToOAMCoords:
 ; in: lower nybble of a = x, upper nybble of a = y
-; out: b and [hl] = (y * 8) + 24, c and [hl+1] = (x * 8) + 24
+; out: b and [hl] = (y * 8) + 23, c and [hl+1] = (x * 8) + 24
 	push af
 	and $f0
 	srl a
-	add 24
+	add 23
 	ld b, a
 	ld [hli], a
 	pop af
@@ -432,7 +411,7 @@ TownMapCoordsToOAMCoords:
 	srl a
 	add 24
 	ld c, a
-	ld [hli], a
+	ld [hl], a
 	ret
 
 WritePlayerOrBirdSpriteOAM:
@@ -617,3 +596,9 @@ TownMapSpriteBlinkingAnimation:
 .done
 	ld [wAnimCounter], a
 	jp DelayFrame
+
+PlaceMapName:
+	coord hl, 0, 0
+	ld [hl], "<UPDN>"
+	inc hl
+	jp PlaceString

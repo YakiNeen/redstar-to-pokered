@@ -1,16 +1,37 @@
 ; pokemon's overworld sprites
 const_value = 0
 
-	const SPRITE_MON       ; $0
-	const SPRITE_BALL_M    ; $1
-	const SPRITE_HELIX     ; $2
-	const SPRITE_FAIRY     ; $3
-	const SPRITE_BIRD_M    ; $4
-	const SPRITE_WATER     ; $5
-	const SPRITE_BUG       ; $6
-	const SPRITE_GRASS     ; $7
-	const SPRITE_SNAKE     ; $8
-	const SPRITE_QUADRUPED ; $9
+	const ICON_NULL        ; $00
+	const ICON_POLIWAG     ; $01
+	const ICON_JIGGLYPUFF  ; $02
+	const ICON_DIGLETT     ; $03
+	const ICON_PIKACHU     ; $04
+	const ICON_STARYU      ; $05
+	const ICON_FISH        ; $06
+	const ICON_BIRD        ; $07
+	const ICON_MONSTER     ; $08
+	const ICON_CLEFAIRY    ; $09
+	const ICON_ODDISH      ; $0a
+	const ICON_BUG         ; $0b
+	const ICON_GHOST       ; $0c
+	const ICON_LAPRAS      ; $0d
+	const ICON_HUMANSHAPE  ; $0e
+	const ICON_FOX         ; $0f
+	const ICON_EQUINE      ; $10
+	const ICON_SHELL       ; $11
+	const ICON_BLOB        ; $12
+	const ICON_SERPENT     ; $13
+	const ICON_VOLTORB     ; $14
+	const ICON_SQUIRTLE    ; $15
+	const ICON_BULBASAUR   ; $16
+	const ICON_CHARMANDER  ; $17
+	const ICON_CATERPILLAR ; $18
+	const ICON_GEODUDE     ; $19
+	const ICON_FIGHTER     ; $1a
+	const ICON_JELLYFISH   ; $1b
+	const ICON_MOTH        ; $1c
+	const ICON_BAT         ; $1d
+	const ICON_SNORLAX     ; $1e
 
 ; overworld sprites
 const_value = 1
@@ -75,22 +96,34 @@ const_value = 1
 	const SPRITE_BRUNO                     ; $3a
 	const SPRITE_LORELEI                   ; $3b
 	const SPRITE_SEEL                      ; $3c
-	const SPRITE_BALL                      ; $3d
-	const SPRITE_OMANYTE                   ; $3e
-	const SPRITE_BOULDER                   ; $3f
-	const SPRITE_PAPER_SHEET               ; $40
-	const SPRITE_BOOK_MAP_DEX              ; $41
-	const SPRITE_CLIPBOARD                 ; $42
-	const SPRITE_SNORLAX                   ; $43
-	const SPRITE_OLD_AMBER_COPY            ; $44
-	const SPRITE_OLD_AMBER                 ; $45
-	const SPRITE_LYING_OLD_MAN_UNUSED_1    ; $46
-	const SPRITE_LYING_OLD_MAN_UNUSED_2    ; $47
-	const SPRITE_LYING_OLD_MAN             ; $48
+	const SPRITE_LAPRAS                    ; $3d
+	const SPRITE_BILL                      ; $3e
+	const SPRITE_BURGLAR                   ; $3f
+	const SPRITE_SWIMMER_F                 ; $40
+	const SPRITE_POLIWRATH                 ; $41
+	const SPRITE_BULBASAUR                 ; $42
+	const SPRITE_ODDISH                    ; $43
+	const SPRITE_SANDSHREW                 ; $44
+	const SPRITE_JIGGLYPUFF                ; $45
+	const SPRITE_CHANSEY                   ; $46
+	const SPRITE_PIKACHU                   ; $47
+	const SPRITE_OFFICER_JENNY             ; $48
+	const SPRITE_RECEPTIONIST              ; $49
+	const SPRITE_BALL                      ; $4a
+	const SPRITE_OMANYTE                   ; $4b
+	const SPRITE_BOULDER                   ; $4c
+	const SPRITE_PAPER_SHEET               ; $4d
+	const SPRITE_BOOK_MAP_DEX              ; $4e
+	const SPRITE_CLIPBOARD                 ; $4f
+	const SPRITE_SNORLAX                   ; $50
+	const SPRITE_OLD_AMBER                 ; $51
+	const SPRITE_LYING_OLD_MAN             ; $52
 
 ; different kinds of people events
 ITEM    EQU $80
 TRAINER EQU $40
+
+OW_POKEMON EQU $80
 
 BOULDER_MOVEMENT_BYTE_2 EQU $10
 

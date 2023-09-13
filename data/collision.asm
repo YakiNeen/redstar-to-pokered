@@ -4,7 +4,7 @@ RedsHouse1_Coll::
 RedsHouse2_Coll::   INCBIN  "gfx/tilesets/reds_house.tilecoll"
 Mart_Coll::
 Pokecenter_Coll::   INCBIN  "gfx/tilesets/pokecenter.tilecoll"
-Dojo_Coll::
+Dojo_Coll::         INCBIN  "gfx/tilesets/dojo.tilecoll"
 Gym_Coll::          INCBIN  "gfx/tilesets/gym.tilecoll"
 Forest_Coll::       INCBIN  "gfx/tilesets/forest.tilecoll"
 House_Coll::        INCBIN  "gfx/tilesets/house.tilecoll"
@@ -22,3 +22,5 @@ Lab_Coll::          INCBIN  "gfx/tilesets/lab.tilecoll"
 Club_Coll::         INCBIN  "gfx/tilesets/club.tilecoll"
 Facility_Coll::     INCBIN  "gfx/tilesets/facility.tilecoll"
 Plateau_Coll::      INCBIN  "gfx/tilesets/plateau.tilecoll"
+Basement_Coll::     INCBIN  "gfx/tilesets/basement.tilecoll"
+Roof_Coll::         INCBIN  "gfx/tilesets/roof.tilecoll"

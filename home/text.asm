@@ -59,12 +59,15 @@ PlaceNextChar::
 	ret
 
 Char4ETest::
+	cp "<LF>"
+	jr z, .line_feed
 	cp $4E ; next
 	jr nz, .char4FTest
 	ld bc, 2 * SCREEN_WIDTH
 	ld a, [hFlags_0xFFF6]
 	bit 2, a
 	jr z, .ok
+.line_feed
 	ld bc, SCREEN_WIDTH
 .ok
 	pop hl
@@ -95,9 +98,9 @@ endm
 	dict $4B, Char4B ; cont_
 	dict $51, Char51 ; para
 	dict $49, Char49 ; page
-	dict $52, Char52 ; player
-	dict $53, Char53 ; rival
-	dict $54, Char54 ; POKé
+	dict "<PLAYER>", Char52
+	dict "<RIVAL>", Char53
+	dict "#", Char54
 	dict $5B, Char5B ; PC
 	dict $5E, Char5E ; ROCKET
 	dict $5C, Char5C ; TM
@@ -106,10 +109,10 @@ endm
 	dict $56, Char56 ; 6 dots
 	dict $57, Char57 ; done
 	dict $58, Char58 ; prompt
-	dict $4A, Char4A ; PKMN
+	dict "<PKMN>", Char4A ; PKMN
 	dict $5F, Char5F ; dex
-	dict $59, Char59 ; TARGET
-	dict $5A, Char5A ; USER
+	dict "<TARGET>", Char59
+	dict "<USER>", Char5A
 
 	ld [hli], a
 	call PrintLetterDelay
@@ -224,11 +227,11 @@ Char5EText::
 Char54Text::
 	db "POKé@"
 Char56Text::
-	db "……@"
+	db "..@" ; ellipses
 Char5AText::
 	db "Enemy @"
 Char4AText::
-	db $E1,$E2,"@" ; PKMN
+	db "<PK><MN>@" ; PKMN
 
 Char55::
 	push de
@@ -258,12 +261,12 @@ Char58:: ; prompt
 	cp LINK_STATE_BATTLING
 	jp z, .ok
 	ld a, "▼"
-	Coorda 18, 16
+	Coorda 18, 17
 .ok
 	call ProtectedDelay3
 	call ManualTextScroll
-	ld a, " "
-	Coorda 18, 16
+	ld a, "─"
+	Coorda 18, 17
 Char57:: ; done
 	pop hl
 	ld de, Char58Text
@@ -276,12 +279,14 @@ Char58Text::
 Char51:: ; para
 	push de
 	ld a, "▼"
-	Coorda 18, 16
+	Coorda 18, 17
 	call ProtectedDelay3
 	call ManualTextScroll
 	coord hl, 1, 13
 	lb bc, 4, 18
 	call ClearScreenArea
+	ld a, "─"
+	Coorda 18, 17
 	ld c, 20
 	call DelayFrames
 	pop de
@@ -293,7 +298,7 @@ Char49::
 	ld a, "▼"
 	Coorda 18, 16
 	call ProtectedDelay3
-	call ManualTextScroll
+	call PokedexTextScroll
 	coord hl, 1, 10
 	lb bc, 7, 18
 	call ClearScreenArea
@@ -307,13 +312,13 @@ Char49::
 
 Char4B::
 	ld a, "▼"
-	Coorda 18, 16
+	Coorda 18, 17
 	call ProtectedDelay3
 	push de
 	call ManualTextScroll
 	pop de
-	ld a, " "
-	Coorda 18, 16
+	ld a, "─"
+	Coorda 18, 17
 	;fall through
 Char4C::
 	push de
@@ -503,12 +508,12 @@ TextCommand06::
 	cp LINK_STATE_BATTLING
 	jp z, TextCommand0D
 	ld a, "▼"
-	Coorda 18, 16 ; place down arrow in lower right corner of dialogue text box
+	Coorda 18, 17 ; place down arrow in lower right corner of dialogue text box
 	push bc
 	call ManualTextScroll ; blink arrow and wait for A or B to be pressed
 	pop bc
-	ld a, " "
-	Coorda 18, 16 ; overwrite down arrow with blank space
+	ld a, "─"
+	Coorda 18, 17 ; overwrite down arrow with border
 	pop hl
 	jp NextTextCommand
 
@@ -516,8 +521,8 @@ TextCommand06::
 ; 07
 ; (no arguments)
 TextCommand07::
-	ld a, " "
-	Coorda 18, 16 ; place blank space in lower right corner of dialogue text box
+	ld a, "─"
+	Coorda 18, 17 ; place border in lower right corner of dialogue text box
 	call ScrollTextUpOneLine
 	call ScrollTextUpOneLine
 	pop hl
@@ -626,7 +631,12 @@ TextCommandSounds::
 	db $10, SFX_GET_ITEM_2
 	db $11, SFX_GET_KEY_ITEM
 	db $13, SFX_DEX_PAGE_ADDED
-	db $14, NIDORINA ; used in OakSpeech
+IF DEF(_RED)
+	db $14, NIDORINO ; used in OakSpeech
+ENDC
+IF DEF(_BLUE)
+	db $14, JIGGLYPUFF ; used in OakSpeech
+ENDC
 	db $15, PIDGEOT  ; used in SaffronCityText12
 	db $16, DEWGONG  ; unused?
 
@@ -641,7 +651,7 @@ TextCommand0C::
 	ld h, b
 	ld l, c
 .loop
-	ld a, "…"
+	ld a, "." ; ellipsis
 	ld [hli], a
 	push de
 	call Joypad

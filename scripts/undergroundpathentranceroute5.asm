@@ -11,8 +11,13 @@ UndergroundPathEntranceRoute5TextPointers:
 
 UndergroundPathEntranceRoute5Text1:
 	TX_ASM
-	ld a, $9
+	ld hl, Trader8Name
+	call SetCustomName
+	ld a, $8
 	ld [wWhichTrade], a
 	predef DoInGameTradeDialogue
 	ld hl, UndergroundPathEntranceRoute5_5d6af
 	ret
+
+Trader8Name:
+	db "SAIGE@"

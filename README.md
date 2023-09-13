@@ -1,35 +1,99 @@
-# Pokémon Red and Blue
+# Pokémon Red★ and Blue★
 
-This is a disassembly of Pokémon Red and Blue.
+***Latest release: November 1, 2020***
 
-It builds the following roms:
+This is a custom Pokémon game based on [the Pokémon Red and Blue disassembly](https://github.com/pret/pokered).
 
-* Pokemon Red (UE) [S][!].gb  `md5: 3d45c1ee9abd5738df46d2bdda8b57dc`
-* Pokemon Blue (UE) [S][!].gb `md5: 50927e843568814f7ed45ec4f944bd8b`
+![titles](screenshots/titles.png)
+
+It started out as a graphics upgrade, replacing the Pokémon sprites with the ones from [the Space World 1997 G/S prototypes](https://github.com/pret/pokegold-spaceworld). Then I ported more content, including overworld tile and sprite graphics, Pokémon genders, shiny Pokémon, and more. I also ended up making all 151 Pokémon available in one game. When the Space World 1999 demo ROMs also leaked, I ported a few graphics from them too. After the BLUEMONS.GB debug ROM leaked, I ported its debug menu with some edits.
+
+For a full list of features, see [**FEATURES.md**](FEATURES.md).
+
+
+## Download and Play
 
 To set up the repository, see [**INSTALL.md**](INSTALL.md).
+
+It builds the following ROMs:
+
+* redstar.gbc  `md5: 48eaef43a9fe8eef1ad0ed0b1a259c6d`
+* bluestar.gbc `md5: d578e8ead5fb044246015e13c1edc244`
+
+If you can't build the repository yourself, you can download these IPS patches and apply them to a clean ROM with a tool like [Lunar IPS](https://fusoya.eludevisibility.org/lips/).
+
+* [redstar.ips](patches/redstar.ips):   apply to Pokemon Red (UE) [S][!].gb  `md5: 3d45c1ee9abd5738df46d2bdda8b57dc`
+* [bluestar.ips](patches/bluestar.ips): apply to Pokemon Blue (UE) [S][!].gb `md5: 50927e843568814f7ed45ec4f944bd8b`
+
+
+## Discussion
+
+You can post questions or comments on any of these sites.
+
+* [Discord](https://discord.gg/UfXWKfN)
+* [Skeetendo](https://hax.iimarckus.org/topic/7470/)
+* [PokéCommunity](https://www.pokecommunity.com/showthread.php?t=409459)
+
+
+## Screenshots
+
+![n64](screenshots/n64.png)
+![pallet-town](screenshots/pallet-town.png)
+![battle](screenshots/battle.png)
+![trainer-card](screenshots/trainer-card.png)
+  
+![pokedex](screenshots/pokedex.png)
+![pokedex-entry](screenshots/pokedex-entry.png)
+![town-map](screenshots/town-map.png)
+![wild-shiny](screenshots/wild-shiny.png)
+  
+![stats-1](screenshots/stats-1.png)
+![stats-2](screenshots/stats-2.png)
+![old-man](screenshots/old-man.png)
+![item-description](screenshots/item-description.png)
+  
+![bug-catcher-rick](screenshots/bug-catcher-rick.png)
+![cut](screenshots/cut.png)
+![surf](screenshots/surf.png)
+![swimmerf-nora](screenshots/swimmerf-nora.png)
+  
+![pokemon-center](screenshots/pokemon-center.png)
+![gift-bulbasaur](screenshots/gift-bulbasaur.png)
+![pewter-gym](screenshots/vermilion-gym.png)
+![blaine](screenshots/blaine.png)
+  
+![wild-farfetchd](screenshots/wild-farfetchd.png)
+![other-fossil](screenshots/other-fossil.png)
+![trade](screenshots/trade.png)
+![safari-zone](screenshots/safari-zone.png)
+  
+![rocket-hideout](screenshots/power-plant.png)
+![pokemon-league](screenshots/pokemon-league.png)
+![game-corner](screenshots/game-corner.png)
+![gatehouse](screenshots/slot-machine.png)
 
 
 ## See also
 
-* Disassembly of [**Pokémon Yellow**][pokeyellow]
-* Disassembly of [**Pokémon Gold**][pokegold]
-* Disassembly of [**Pokémon Crystal**][pokecrystal]
-* Disassembly of [**Pokémon Pinball**][pokepinball]
-* Disassembly of [**Pokémon TCG**][poketcg]
-* Disassembly of [**Pokémon Ruby**][pokeruby]
-* Disassembly of [**Pokémon Fire Red**][pokefirered]
-* Disassembly of [**Pokémon Emerald**][pokeemerald]
-* Discord: [**pret**][Discord]
-* irc: **irc.freenode.net** [**#pret**][irc]
+Other hacks:
 
-[pokeyellow]: https://github.com/pret/pokeyellow
-[pokegold]: https://github.com/pret/pokegold
-[pokecrystal]: https://github.com/pret/pokecrystal
-[pokepinball]: https://github.com/pret/pokepinball
-[poketcg]: https://github.com/pret/poketcg
-[pokeruby]: https://github.com/pret/pokeruby
-[pokefirered]: https://github.com/pret/pokefirered
-[pokeemerald]: https://github.com/pret/pokeemerald
-[Discord]: https://discord.gg/cJxDDVP
-[irc]: https://kiwiirc.com/client/irc.freenode.net/?#pret
+* [Pokémon Polished Crystal](https://github.com/Rangi42/polishedcrystal)
+* [Pokémon Red++](https://github.com/TheFakeMateo/RedPlusPlus/)
+* [Pokémon Orange](https://github.com/PiaCarrot/pokeorange)
+
+Discord servers:
+
+* [Rangi](https://discord.gg/ZK5pqK8)
+* [Lunaverse](https://discord.gg/SQwkd7r)
+* [Pia Carrot](https://discord.gg/UKTyj3t)
+
+pret projects:
+
+* [pokered](https://github.com/pret/pokered)
+* [pokegold-spaceworld](https://github.com/pret/pokegold-spaceworld)
+* [pokeyellow](https://github.com/pret/pokeyellow)
+* [pokecrystal](https://github.com/pret/pokecrystal)
+
+More info:
+
+* [The Cutting Room Floor](https://tcrf.net/Proto:Pok%C3%A9mon_Gold_and_Silver)

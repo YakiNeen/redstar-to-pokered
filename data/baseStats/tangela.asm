@@ -8,7 +8,7 @@ db GRASS ; species type 1
 db GRASS ; species type 2
 db 45 ; catch rate
 db 166 ; base exp yield
-INCBIN "pic/bmon/tangela.pic",0,1 ; 66, sprite dimensions
+INCBIN "pic/swmon/tangela.pic",0,1 ; 66, sprite dimensions
 dw TangelaPicFront
 dw TangelaPicBack
 ; attacks known at lvl 0
@@ -25,4 +25,4 @@ db 0 ; growth rate
 	tmlearn 34,40
 	tmlearn 44
 	tmlearn 50,51
-db 0 ; padding
+db BANK(TangelaPicBack)

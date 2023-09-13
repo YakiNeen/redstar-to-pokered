@@ -65,7 +65,7 @@ ItemUsePtrTable:
 	dw ItemUseEvoStone   ; LEAF_STONE
 	dw ItemUseCardKey    ; CARD_KEY
 	dw UnusableItem      ; NUGGET
-	dw UnusableItem      ; ??? PP_UP
+	dw ItemUseEvoStone   ; HEART_STONE
 	dw ItemUsePokedoll   ; POKE_DOLL
 	dw ItemUseMedicine   ; FULL_HEAL
 	dw ItemUseMedicine   ; REVIVE
@@ -94,7 +94,7 @@ ItemUsePtrTable:
 	dw ItemUseOldRod     ; OLD_ROD
 	dw ItemUseGoodRod    ; GOOD_ROD
 	dw ItemUseSuperRod   ; SUPER_ROD
-	dw ItemUsePPUp       ; PP_UP (real one)
+	dw ItemUsePPUp       ; PP_UP
 	dw ItemUsePPRestore  ; ETHER
 	dw ItemUsePPRestore  ; MAX_ETHER
 	dw ItemUsePPRestore  ; ELIXER
@@ -1526,7 +1526,7 @@ ItemUseEscapeRope:
 	jp ItemUseNotTime
 
 EscapeRopeTilesets:
-	db FOREST, CEMETERY, CAVERN, FACILITY, INTERIOR
+	db FOREST, CEMETERY, CAVERN, FACILITY, INTERIOR, BASEMENT
 	db $ff ; terminator
 
 ItemUseRepel:
@@ -2867,9 +2867,7 @@ IsNextTileShoreOrWater:
 	cp SHIP_PORT ; Vermilion Dock tileset
 	ld a, [wTileInFrontOfPlayer] ; tile in front of player
 	jr z, .skipShoreTiles ; if it's the Vermilion Dock tileset
-	cp $48 ; eastern shore tile in Safari Zone
-	jr z, .shoreOrWater
-	cp $32 ; usual eastern shore tile
+	cp $32 ; eastern shore tile
 	jr z, .shoreOrWater
 .skipShoreTiles
 	cp $14 ; water tile
@@ -2883,7 +2881,7 @@ IsNextTileShoreOrWater:
 
 ; tilesets with water
 WaterTilesets:
-	db OVERWORLD, FOREST, DOJO, GYM, SHIP, SHIP_PORT, CAVERN, FACILITY, PLATEAU
+	db OVERWORLD, FOREST, GYM, SHIP, SHIP_PORT, CAVERN, PLATEAU
 	db $ff ; terminator
 
 ReadSuperRodData:

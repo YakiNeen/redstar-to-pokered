@@ -179,8 +179,7 @@ HoFDisplayMonInfo:
 
 HoFMonInfoText:
 	db   "LEVEL/"
-	next "TYPE1/"
-	next "TYPE2/@"
+	next "TYPE/@"
 
 HoFLoadPlayerPics:
 	ld de, RedPicFront
@@ -195,9 +194,12 @@ HoFLoadPlayerPics:
 	ld de, RedPicBack
 	ld a, BANK(RedPicBack)
 	call UncompressSpriteFromDE
-	predef ScaleSpriteByTwo
+	ld a, $66
 	ld de, vBackPic
-	call InterlaceMergeSpriteBuffers
+	push de
+	jp LoadUncompressedBackSprite
+	; XXX works for pokered-gen-II...
+	nop
 	ld c, $1
 
 HoFLoadMonPlayerPicTileIDs:
@@ -227,7 +229,7 @@ HoFDisplayPlayerStats:
 	ld de, wPlayTimeHours
 	lb bc, 1, 3
 	call PrintNumber
-	ld [hl], $6d
+	ld [hl], "<:>"
 	inc hl
 	ld de, wPlayTimeMinutes
 	lb bc, LEADING_ZEROES | 1, 2

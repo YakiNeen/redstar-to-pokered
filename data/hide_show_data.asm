@@ -68,7 +68,7 @@ MapHSPointers:
 	dw MapHSXX
 	dw MapHS3D
 	dw MapHSXX
-	dw MapHSXX
+	dw MapHS3F
 	dw MapHSXX
 	dw MapHSXX
 	dw MapHSXX
@@ -249,7 +249,7 @@ MapHSPointers:
 	dw MapHSXX
 	dw MapHSXX
 	dw MapHSXX
-	dw MapHSF4
+	dw MapHSXX
 	dw MapHSXX
 	dw MapHSXX
 	dw MapHSXX
@@ -514,8 +514,8 @@ MapHSEB:
 	db SILPH_CO_11F,$03,Show
 	db SILPH_CO_11F,$04,Show
 	db SILPH_CO_11F,$05,Show
-MapHSF4:
-	db $F4,$02,Show
+MapHS3F:
+	db CERULEAN_HOUSE_1,$02,Show
 MapHSD6:
 	db MANSION_2,$02,Show
 MapHSD7:
@@ -546,6 +546,8 @@ MapHSE2:
 	db UNKNOWN_DUNGEON_2,$01,Show
 	db UNKNOWN_DUNGEON_2,$02,Show
 	db UNKNOWN_DUNGEON_2,$03,Show
+	db UNKNOWN_DUNGEON_2,$04,Show
+	db UNKNOWN_DUNGEON_2,$05,Show
 MapHSE3:
 	db UNKNOWN_DUNGEON_3,$01,Show
 	db UNKNOWN_DUNGEON_3,$02,Show

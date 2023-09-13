@@ -124,3 +124,78 @@ _VermilionCityText12::
 _VermilionCityText13::
 	text "VERMILION HARBOR"
 	done
+
+_OfficerJennyText1::
+	text "I just caught a"
+	line "SQUIRTLE that was"
+	cont "always getting"
+	cont "into mischief."
+
+	para "I think it needs a"
+	line "good trainer to"
+	cont "set it straight."
+	done
+
+_OfficerJennyText2::
+	text "You have the"
+	line "THUNDERBADGE!?"
+
+	para "You must be a"
+	line "good trainer!"
+
+	para "I just caught a"
+	line "SQUIRTLE that was"
+	cont "always getting"
+	cont "into mischief."
+
+	para "Would you take"
+	line "good care of it?"
+	done
+
+_OfficerJennyText3::
+	text "OK! Please treat"
+	line "SQUIRTLE right!@@"
+
+_OfficerJennyText4::
+	text "Oh... What am I"
+	line "to do now?"
+	done
+
+_OfficerJennyText5::
+	text "How is SQUIRTLE"
+	line "doing?"
+	done
+
+_OfficerJennyText6::
+	text "Some SQUIRTLE"
+	line "around here is"
+	cont "always getting"
+	cont "into mischief."
+
+	para "PROF.OAK gave you"
+	line "a SQUIRTLE?"
+	cont "And it behaves?"
+
+	para "You must be a"
+	line "good trainer!"
+
+	para "Take this and"
+	line "raise your"
+	cont "SQUIRTLE right!"
+	prompt
+
+_OfficerJennyText7::
+	text "<PLAYER> got"
+	line "@"
+	TX_RAM wcf4b
+	text "!@@"
+
+_OfficerJennyText8::
+	text "Oh... You can't"
+	line "carry this."
+	done
+
+_OfficerJennyText9::
+	text "How is your"
+	line "SQUIRTLE doing?"
+	done

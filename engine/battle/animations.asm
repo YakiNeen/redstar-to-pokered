@@ -2670,9 +2670,9 @@ Unknown_79c20:
 	db $34,$39,$3A,$3A,$3B,$38
 	db $3C,$3D,$3E,$3E,$3F,$40
 	db $41,$42,$43,$43,$44,$45
-	db $46,$47,$43,$48,$49,$4A
-	db $41,$43,$4B,$4C,$4D,$4E
-	db $4F,$50,$50,$50,$51,$52
+	db $46,$47,$43,$48,$49,$40
+	db $41,$43,$4A,$4A,$4B,$4C
+	db $4D,$4E,$4E,$4E,$4F,$50
 
 Unknown_79c50:
 	db $43,$55,$56,$53,$53,$53,$53,$53,$53,$53,$53,$53
@@ -3013,19 +3013,26 @@ PlayApplyingAttackSound:
 	call WaitForSoundToFinish
 	ld a, [wDamageMultipliers]
 	and $7f
-	ret z
-	cp 10
-	ld a, $20
-	ld b, $30
-	ld c, SFX_DAMAGE
-	jr z, .playSound
+	cp $7f
+	ret z ; immune
+; super effective
+	cp %00000010
+	ld d, a
 	ld a, $e0
 	ld b, $ff
 	ld c, SFX_SUPER_EFFECTIVE
-	jr nc, .playSound
+	jr z, .playSound
+; not very effective
+	ld a, d
+	cp %00000001
 	ld a, $50
 	ld b, $1
 	ld c, SFX_NOT_VERY_EFFECTIVE
+	jr z, .playSound
+; neutral
+	ld a, $20
+	ld b, $30
+	ld c, SFX_DAMAGE
 .playSound
 	ld [wFrequencyModifier], a
 	ld a, b

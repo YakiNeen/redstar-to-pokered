@@ -6,8 +6,15 @@ PrintBeginningBattleText:
 	cp POKEMONTOWER_3
 	jr c, .notPokemonTower
 	cp LAVENDER_HOUSE_1
-	jr c, .pokemonTower
+	jp c, .pokemonTower
 .notPokemonTower
+	ld de, wEnemyMonDVs
+	callba IsMonShiny
+	jr z, .noFlash
+	ld hl, wShinyMonFlag
+	set 1, [hl]
+	callba PlayShinySparkleAnimation
+.noFlash
 	ld a, [wEnemyMonSpecies2]
 	call PlayCry
 	ld hl, WildMonAppearedText

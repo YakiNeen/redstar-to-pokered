@@ -35,6 +35,8 @@ CeruleanCityScript4:
 	ret
 
 CeruleanCityScript0:
+	call DebugPressedOrHeldB
+	ret nz
 	CheckEvent EVENT_BEAT_CERULEAN_ROCKET_THIEF
 	jr nz, .asm_194f7
 	ld hl, CeruleanCityCoords1
@@ -152,6 +154,8 @@ CeruleanCityScript1:
 	ld a, $9
 .done
 	ld [wTrainerNo], a
+	ld a, 1
+	ld [wIsTrainerBattle], a
 
 	xor a
 	ld [hJoyHeld], a
@@ -164,6 +168,8 @@ CeruleanCityScript2:
 	ld a, [wIsInBattle]
 	cp $ff
 	jp z, CeruleanCityScript_1948c
+	xor a
+	ld [wIsTrainerBattle], a
 	call CeruleanCityScript_1955d
 	ld a, $f0
 	ld [wJoyIgnore], a

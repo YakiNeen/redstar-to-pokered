@@ -36,7 +36,7 @@ _CardKeyFailText::
 	done
 
 _TrainerNameText::
-	TX_RAM wcd6d
+	TX_RAM wCurTrainerName
 	text ": @@"
 
 _NoNibbleText::
@@ -231,14 +231,19 @@ INCLUDE "text/maps/seafoam_islands_b4f.asm"
 
 _AIBattleWithdrawText::
 	TX_RAM wTrainerName
-	text " with-"
-	line "drew @"
+	text "@"
+	TX_RAM wCurTrainerName
+	text ""
+	line "withdrew"
+	cont "@"
 	TX_RAM wEnemyMonNick
 	text "!"
 	prompt
 
 _AIBattleUseItemText::
 	TX_RAM wTrainerName
+	text " @"
+	TX_RAM wCurTrainerName
 	text ""
 	line "used @"
 	TX_RAM wcd6d
@@ -357,7 +362,7 @@ _DexSeenOwnedText::
 	db "@"
 
 _DexRatingText::
-	text "#DEX Rating", $6d
+	text "#DEX Rating<:>"
 	done
 
 _GymStatueText1::
@@ -802,7 +807,7 @@ _IndigoPlateauHQText::
 
 _RedBedroomSNESText::
 	text "<PLAYER> is"
-	line "playing the SNES!"
+	line "playing the N64!"
 	cont "...Okay!"
 	cont "It's time to go!"
 	done
@@ -1091,10 +1096,11 @@ _MoneyForWinningText::
 	prompt
 
 _TrainerDefeatedText::
-	text "<PLAYER> defeated"
-	line "@"
 	TX_RAM wTrainerName
-	text "!"
+	text " @"
+	TX_RAM wCurTrainerName
+	text ""
+	line "was defeated!"
 	prompt
 
 _PlayerMonFaintedText::
@@ -1129,9 +1135,11 @@ _LinkBattleLostText::
 
 _TrainerAboutToUseText::
 	TX_RAM wTrainerName
-	text " is"
-	line "about to use"
-	cont"@"
+	text " @"
+	TX_RAM wCurTrainerName
+	text ""
+	line "is about to use"
+	cont "@"
 	TX_RAM wEnemyMonNick
 	text "!"
 
@@ -1141,8 +1149,11 @@ _TrainerAboutToUseText::
 
 _TrainerSentOutText::
 	TX_RAM wTrainerName
-	text " sent"
-	line "out @"
+	text " @"
+	TX_RAM wCurTrainerName
+	text ""
+	line "sent out"
+	cont "@"
 	TX_RAM wEnemyMonNick
 	text "!"
 	done
@@ -1467,8 +1478,10 @@ _EnemyAppearedText::
 
 _TrainerWantsToFightText::
 	TX_RAM wTrainerName
-	text " wants"
-	line "to fight!"
+	text " @"
+	TX_RAM wCurTrainerName
+	text ""
+	line "wants to fight!"
 	prompt
 
 _UnveiledGhostText::
@@ -2032,7 +2045,7 @@ _WhenYouChangeBoxText::
 
 _ChooseABoxText::
 	text "Choose a"
-	line "<pkmn> BOX.@@"
+	line "<PKMN> BOX.@@"
 
 _EvolvedText::
 	TX_RAM wcf4b
@@ -3200,3 +3213,8 @@ INCLUDE "text/pokedex.asm"
 SECTION "Move Names", ROMX, BANK[MOVE_NAMES]
 
 INCLUDE "text/move_names.asm"
+
+
+SECTION "Item Description Text", ROMX
+
+INCLUDE "text/item_descriptions.asm"

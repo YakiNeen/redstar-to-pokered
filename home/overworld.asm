@@ -10,9 +10,9 @@ EnterMap::
 	call LoadMapData
 	callba ClearVariablesOnEnterMap
 	ld hl, wd72c
-	bit 0, [hl] ; has the player already made 3 steps since the last battle?
+	bit 0, [hl] ; has the player already made 2 steps since the last battle?
 	jr z, .skipGivingThreeStepsOfNoRandomBattles
-	ld a, 3 ; minimum number of steps between battles
+	ld a, 2 ; minimum number of steps between battles
 	ld [wNumberOfNoRandomBattleStepsLeft], a
 .skipGivingThreeStepsOfNoRandomBattles
 	ld hl, wd72e
@@ -94,7 +94,9 @@ OverworldLoopLessDelay::
 	call IsSpriteOrSignInFrontOfPlayer
 	ld a, [hSpriteIndexOrTextID]
 	and a
-	jp z, OverworldLoop
+	jr nz, .displayDialogue
+	predef TryFieldMove
+	jp OverworldLoop
 .displayDialogue
 	predef GetTileAndCoordsInFrontOfPlayer
 	call UpdateSprites
@@ -283,7 +285,25 @@ OverworldLoopLessDelay::
 	bit 6, a ; jumping a ledge?
 	jr nz, .normalPlayerSpriteAdvancement
 	call DoBikeSpeedup
+; mach bike when holding B
+	ld a, [hJoyHeld]
+	and B_BUTTON
+	jr z, .notRunning
+	call DoBikeSpeedup
+	call DoBikeSpeedup
+	jr .notRunning
 .normalPlayerSpriteAdvancement
+; surf at bike speed
+	ld a,[wWalkBikeSurfState]
+	cp a, $02 ; surfing
+	jr z, .goFaster
+; running shoes when holding B
+	ld a, [hJoyHeld]
+	and B_BUTTON
+	jr z, .notRunning
+.goFaster
+	call DoBikeSpeedup
+.notRunning
 	call AdvancePlayerSprite
 	ld a, [wWalkCounter]
 	and a
@@ -551,6 +571,8 @@ CheckMapConnections::
 	cp $ff
 	jr nz, .checkEastMap
 	ld a, [wMapConn3Ptr]
+	cp $ff
+	jr z, .checkEastMap
 	ld [wCurMap], a
 	ld a, [wWestConnectedMapXAlignment] ; new X coordinate upon entering west map
 	ld [wXCoord], a
@@ -588,6 +610,8 @@ CheckMapConnections::
 	cp b
 	jr nz, .checkNorthMap
 	ld a, [wMapConn4Ptr]
+	cp $ff
+	jr z, .checkNorthMap
 	ld [wCurMap], a
 	ld a, [wEastConnectedMapXAlignment] ; new X coordinate upon entering east map
 	ld [wXCoord], a
@@ -624,6 +648,8 @@ CheckMapConnections::
 	cp $ff
 	jr nz, .checkSouthMap
 	ld a, [wMapConn1Ptr]
+	cp $ff
+	jr z, .checkSouthMap
 	ld [wCurMap], a
 	ld a, [wNorthConnectedMapYAlignment] ; new Y coordinate upon entering north map
 	ld [wYCoord], a
@@ -652,6 +678,8 @@ CheckMapConnections::
 	cp b
 	jr nz, .didNotEnterConnectedMap
 	ld a, [wMapConn2Ptr]
+	cp $ff
+	jr z, .didNotEnterConnectedMap
 	ld [wCurMap], a
 	ld a, [wSouthConnectedMapYAlignment] ; new Y coordinate upon entering south map
 	ld [wYCoord], a
@@ -876,7 +904,8 @@ LoadTilesetTilePatternData::
 	ld a, [wTilesetGfxPtr + 1]
 	ld h, a
 	ld de, vTileset
-	ld bc, $600
+	ld a, [wCurMapTileset]
+	ld bc, $790
 	ld a, [wTilesetBank]
 	jp FarCopyData2
 
@@ -1226,6 +1255,8 @@ CollisionCheckOnLand::
 	ld a, [wSimulatedJoypadStatesIndex]
 	and a
 	jr nz, .noCollision ; no collisions when the player's movements are being controlled by the game
+	call DebugPressedOrHeldB
+	jr nz, .noCollision
 	ld a, [wPlayerDirection] ; the direction that the player is trying to go in
 	ld d, a
 	ld a, [wSpriteStateData1 + 12] ; the player sprite's collision data (bit field) (set in the sprite movement code)
@@ -2005,7 +2036,7 @@ LoadWalkingPlayerSpriteGraphics::
 	jr LoadPlayerSpriteGraphicsCommon
 
 LoadSurfingPlayerSpriteGraphics::
-	ld de, SeelSprite
+	ld de, LaprasSprite
 	ld hl, vNPCSprites
 	jr LoadPlayerSpriteGraphicsCommon
 

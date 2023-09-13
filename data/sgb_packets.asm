@@ -76,7 +76,7 @@ BlkPacket_Battle:
 
 BlkPacket_StatusScreen:
 	ATTR_BLK 1
-	ATTR_BLK_DATA %111, 1,1,0, 01,00, 07,06 ; mon: pal 1, HP bar: pal 0
+	ATTR_BLK_DATA %111, 1,1,0, 00,00, 06,06 ; mon: pal 1, HP bar: pal 0
 	ds 8
 
 	db $02,$00,$00,$11,$00,$03
@@ -203,7 +203,7 @@ PalPacket_Empty:          PAL_SET 0, 0, 0, 0
 PalPacket_PartyMenu:      PAL_SET PAL_MEWMON, PAL_GREENBAR, PAL_YELLOWBAR, PAL_REDBAR
 PalPacket_Black:          PAL_SET PAL_BLACK, PAL_BLACK, PAL_BLACK, PAL_BLACK
 PalPacket_TownMap:        PAL_SET PAL_TOWNMAP, 0, 0, 0
-PalPacket_Pokedex:        PAL_SET PAL_BROWNMON, 0, 0, 0
+PalPacket_Pokedex:        PAL_SET PAL_POKEDEX, 0, 0, 0
 PalPacket_Slots:          PAL_SET PAL_SLOTS1, PAL_SLOTS2, PAL_SLOTS3, PAL_SLOTS4
 PalPacket_Titlescreen:    PAL_SET PAL_LOGO2, PAL_LOGO1, PAL_MEWMON, PAL_PURPLEMON
 PalPacket_TrainerCard:    PAL_SET PAL_MEWMON, PAL_BADGE, PAL_REDMON, PAL_YELLOWMON

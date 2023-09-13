@@ -19,6 +19,8 @@ PokemonTower2ScriptPointers:
 PokemonTower2Script0:
 	CheckEvent EVENT_BEAT_POKEMON_TOWER_RIVAL
 	ret nz
+	call DebugPressedOrHeldB
+	ret nz
 	ld hl, CoordsData_6055e
 	call ArePlayerCoordsInArray
 	ret nc
@@ -62,6 +64,8 @@ PokemonTower2Script1:
 	ld a, [wIsInBattle]
 	cp $ff
 	jp z, PokemonTower2Script_604fe
+	xor a
+	ld [wIsTrainerBattle], a
 	ld a, $f0
 	ld [wJoyIgnore], a
 	SetEvent EVENT_BEAT_POKEMON_TOWER_RIVAL
@@ -160,6 +164,8 @@ PokemonTower2Text1:
 	ld a, $6
 .done
 	ld [wTrainerNo], a
+	ld a, 1
+	ld [wIsTrainerBattle], a
 
 	ld a, $1
 	ld [wPokemonTower2CurScript], a

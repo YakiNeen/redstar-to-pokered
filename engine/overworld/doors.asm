@@ -38,7 +38,9 @@ DoorTileIDPointers:
 	dbw MANSION,     MansionDoorTileIDs
 	dbw LAB,         LabDoorTileIDs
 	dbw FACILITY,    FacilityDoorTileIDs
+	dbw INTERIOR,    InteriorDoorTileIDs
 	dbw PLATEAU,     PlateauDoorTileIDs
+	dbw ROOF,        RoofDoorTileIDs
 	db $ff
 
 OverworldDoorTileIDs:
@@ -69,7 +71,13 @@ LabDoorTileIDs:
 	db $34,$00
 
 FacilityDoorTileIDs:
-	db $43,$58,$1b,$00
+	db $1b,$43,$58,$64,$00
+
+InteriorDoorTileIDs:
+	db $04,$15,$00
 
 PlateauDoorTileIDs:
 	db $3b,$1b,$00
+
+RoofDoorTileIDs:
+	db $19,$00
